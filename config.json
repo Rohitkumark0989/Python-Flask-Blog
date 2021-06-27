@@ -1,0 +1,16 @@
+{
+  "params":
+  {
+    "local_server": "True",
+    "local_uri": "mysql://root:@localhost/flaskproject",
+    "fb_url": "https://facebook.com/rohit",
+    "gmail-user": "rohit.kumark0989@gmail.com",
+    "gmail-password": "XEXESS",
+    "num_of_posts": 2,
+    "blog_name": "Rohit's Project",
+    "admin_user": "admin@gmail.com",
+    "admin_password": "admin",
+    "upload_location": "C:\\pythonProject1\\static"
+
+  }
+}
