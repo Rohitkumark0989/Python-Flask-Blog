@@ -193,6 +193,7 @@ def delete(sno):
 def logout():
     session.pop('user')
     return redirect('/dashboard')
-
+def create_app():
+    app = Flask(__name__)
 if __name__=='__main__':
     app.run(debug=True)
