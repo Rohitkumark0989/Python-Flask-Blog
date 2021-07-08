@@ -5,7 +5,8 @@ from flask_migrate import Migrate
 #from werkzeug import secure_filename
 from werkzeug.utils import secure_filename
 #from werkzeug.datastructures import  FileStorage
-
+from dotenv import load_dotenv
+load_dotenv()
 import json
 import os
 import math
@@ -27,7 +28,7 @@ app.config.update(
 )
 mail =  Mail(app)
 ENV = 'dev'
-if ENV == 'dev':
+if os.getenv('FLASK_ENV') =='development':
     app.config['SQLALCHEMY_DATABASE_URI'] = params['local_uri']
 else:
     app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://xgdmofeggrrbqq:c5093bd8821e36ce9ba03f3e2ae33bfb73696c285a108b6fb44bb5e2b19a2b99@ec2-35-171-250-21.compute-1.amazonaws.com:5432/d8k1c7bvua1484'
