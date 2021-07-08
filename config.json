@@ -2,10 +2,11 @@
   "params":
   {
     "local_server": "True",
-    "local_uri": "mysql://root:@localhost/flaskproject",
+    "local_uri11": "mysql://root:@localhost/flaskproject",
+    "local_uri": "postgresql://postgres:admin@localhost/flaskproject",
     "fb_url": "https://facebook.com/rohit",
     "gmail-user": "rohit.kumark0989@gmail.com",
-    "gmail-password": "ddxdsdd",
+    "gmail-password": "XEXESS",
     "num_of_posts": 2,
     "blog_name": "Rohit's Project",
     "admin_user": "admin@gmail.com",
