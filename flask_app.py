@@ -1,5 +1,7 @@
-from flask import Flask,render_template,request,session,redirect
+from flask import Flask,render_template,request,session,redirect,flash
+
 from flask_sqlalchemy import SQLAlchemy
+from flask_bcrypt import Bcrypt
 from flask_mail import Mail
 from flask_migrate import Migrate
 #from werkzeug import secure_filename
@@ -19,6 +21,7 @@ with open('config.json','r') as c:
 app = Flask(__name__)
 app.secret_key = params['secret_key']
 app.config['UPLOAD_FOLDER'] = params['upload_location']
+app.config['PROFILE_FOLDER'] = params['profile_location']
 app.config.update(
     MAIL_SERVER ='smtp.gmail.com',
     MAIL_PORT = '465',
@@ -35,6 +38,7 @@ else:
 
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(app)
+bcrypt = Bcrypt(app)
 migrate = Migrate(app, db)
 class Contacts(db.Model):
     """
@@ -204,8 +208,31 @@ def delete(sno):
         db.session.commit()
     return redirect('/admin')
 
+@app.route("/register", methods=['GET','POST'])
+def register():
+    """ Register Functionality """
+    if(request.method=='POST' ):
+         ''' Add new user data '''
+         f_name = request.form.get('f_name')
+         last_name = request.form.get('last_name')
+         email = request.form.get('cus_email')
+         password = request.form.get('password')
+         date = datetime.today().strftime('%Y-%m-%d')
+         encrypted_password = bcrypt.generate_password_hash(password).decode('utf-8')
+         f = request.files['profile_pic']
+         #f = request.form.file.data
+         f.save(os.path.join(app.config['PROFILE_FOLDER'], secure_filename(f.filename)))
+         entery = Users(f_name=f_name,l_name=last_name,email=email,password=encrypted_password,date=date,profile_img=f.filename)
+         db.session.add(entery)
+         db.session.commit()
+         flash(f'User Registered Succesfully!')
+         return redirect('/admin')
+
+    return render_template('admin/register.html')
+
 @app.route("/logout")
 def logout():
+    """ Logout Functionality """
     session.pop('user')
     return redirect('/admin')
 def create_app():
