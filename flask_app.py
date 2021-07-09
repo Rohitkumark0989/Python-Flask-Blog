@@ -59,6 +59,17 @@ class Posts(db.Model):
     #date = db.Column(db.DateTime(),default=datetime.now())
     img_file = db.Column(db.String(120),  nullable=True,default='default.jpg')
 
+class Users(db.Model):
+    """
+    id,name,email,phone_num,msg,date
+    """
+    id = db.Column(db.Integer, primary_key=True)
+    f_name = db.Column(db.String(80), nullable=False)
+    l_name = db.Column(db.String(80), nullable=False)
+    email = db.Column(db.String(120),  nullable=False)
+    password = db.Column(db.String(120),  nullable=False)
+    date = db.Column(db.String(120),  nullable=True)
+    profile_img = db.Column(db.String(120),  nullable=True,default='default.jpg')
 
 @app.route("/")
 def home():
@@ -85,8 +96,8 @@ def home():
 
     return render_template("index.html",params=params,posts=posts,prev=prev, next=next)
 
-@app.route("/dashboard", methods=['GET','POST'])
-def dashboard():
+@app.route("/admin", methods=['GET','POST'])
+def admin():
     if ('user' in session and session['user'] == params['admin_user']):
         posts = Posts.query.all()
         return render_template('dashboard.html',params=params,posts = posts)
@@ -99,8 +110,10 @@ def dashboard():
             session['user'] = username
             posts = Posts.query.all()
             return render_template('dashboard.html',params=params,posts = posts)
-
-    return render_template('login.html', params=params)
+    
+    APP_PATH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    TEMPLATE_PATH = os.path.join(APP_PATH, 'templates/')
+    return render_template('admin/login.html', params=params)
 
     #return render_template('login.html',params=params)
 
@@ -189,12 +202,12 @@ def delete(sno):
         post = Posts.query.filter_by(sno=sno).first()
         db.session.delete(post)
         db.session.commit()
-    return redirect('/dashboard')
+    return redirect('/admin')
 
 @app.route("/logout")
 def logout():
     session.pop('user')
-    return redirect('/dashboard')
+    return redirect('/admin')
 def create_app():
     app = Flask(__name__)
 if __name__=='__main__':
