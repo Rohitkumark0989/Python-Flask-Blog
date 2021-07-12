@@ -1,4 +1,5 @@
-from flask import Flask,render_template,request,session,redirect,flash
+from flask import Flask,render_template,request,session,redirect,flash,url_for
+from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
@@ -7,6 +8,7 @@ from flask_migrate import Migrate
 #from werkzeug import secure_filename
 from werkzeug.utils import secure_filename
 #from werkzeug.datastructures import  FileStorage
+
 from dotenv import load_dotenv
 load_dotenv()
 import json
@@ -38,6 +40,10 @@ else:
 
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(app)
+
+login_manager =LoginManager()
+login_manager.init_app(app)
+
 bcrypt = Bcrypt(app)
 migrate = Migrate(app, db)
 class Contacts(db.Model):
@@ -63,7 +69,7 @@ class Posts(db.Model):
     #date = db.Column(db.DateTime(),default=datetime.now())
     img_file = db.Column(db.String(120),  nullable=True,default='default.jpg')
 
-class Users(db.Model):
+class Users(UserMixin, db.Model):
     """
     id,name,email,phone_num,msg,date
     """
@@ -74,6 +80,10 @@ class Users(db.Model):
     password = db.Column(db.String(120),  nullable=False)
     date = db.Column(db.String(120),  nullable=True)
     profile_img = db.Column(db.String(120),  nullable=True,default='default.jpg')
+    
+@login_manager.user_loader
+def load_user(id):
+    return Users.query.get(int(id))
 
 @app.route("/")
 def home():
@@ -103,23 +113,39 @@ def home():
 @app.route("/admin", methods=['GET','POST'])
 def admin():
     if ('user' in session and session['user'] == params['admin_user']):
-        posts = Posts.query.all()
-        return render_template('dashboard.html',params=params,posts = posts)
+        return redirect('/dashboard')
 
     if request.method == 'POST':
         # Redirect to admin panel
         username = request.form.get('username')
         password = request.form.get('password')
-        if (username == params['admin_user'] and password == params['admin_password']):
+        encrypted_password = bcrypt.generate_password_hash(password).decode('utf-8')
+        user = Users.query.filter_by(f_name = username).first()
+        error = None
+        if not user or not (user.password, encrypted_password):
+        #if user is None:
+             #return render_template('admin/login.html', params=params)
+             flash('Sorry Invalid Credential')
+             return redirect(url_for('admin'))
+
+        if  user.f_name == username:
+            login_user(user)
+            #if (username == params['admin_user'] and password == params['admin_password']):
             session['user'] = username
-            posts = Posts.query.all()
-            return render_template('dashboard.html',params=params,posts = posts)
+            APP_PATH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            TEMPLATE_PATH = os.path.join(APP_PATH, 'templates/')
+            return redirect('/dashboard')
+          
     
-    APP_PATH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    TEMPLATE_PATH = os.path.join(APP_PATH, 'templates/')
     return render_template('admin/login.html', params=params)
 
     #return render_template('login.html',params=params)
+
+@app.route("/dashboard")
+@login_required
+def dashboard():
+    posts = Posts.query.all()
+    return render_template('dashboard.html',params=params,posts = posts)
 
 @app.route("/about")
 def about():
@@ -231,9 +257,11 @@ def register():
     return render_template('admin/register.html')
 
 @app.route("/logout")
+@login_required
 def logout():
     """ Logout Functionality """
     session.pop('user')
+    logout_user()
     return redirect('/admin')
 def create_app():
     app = Flask(__name__)
