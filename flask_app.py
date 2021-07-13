@@ -20,7 +20,7 @@ from datetime import datetime,date
 with open('config.json','r') as c:
     params =json.load(c)["params"]
 
-UPLOADS_PATH  = join(dirname(realpath(__file__)), 'static\\assets\\profile')
+UPLOADS_PATH  = join(dirname(realpath(__file__)), '\\static\\assets\\profile')
 app = Flask(__name__)
 app.secret_key = params['secret_key']
 app.config['UPLOAD_FOLDER'] = params['upload_location']
