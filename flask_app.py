@@ -13,6 +13,7 @@ from dotenv import load_dotenv
 load_dotenv()
 import json
 import os
+from os.path import join, dirname, realpath
 import math
 from datetime import datetime,date
 
@@ -23,7 +24,8 @@ with open('config.json','r') as c:
 app = Flask(__name__)
 app.secret_key = params['secret_key']
 app.config['UPLOAD_FOLDER'] = params['upload_location']
-app.config['PROFILE_FOLDER'] = params['profile_location']
+#app.config['PROFILE_FOLDER'] = params['profile_location']
+app.config['PROFILE_FOLDER'] = join(dirname(realpath(__file__)), 'static\\assets\\profile')
 app.config.update(
     MAIL_SERVER ='smtp.gmail.com',
     MAIL_PORT = '465',
