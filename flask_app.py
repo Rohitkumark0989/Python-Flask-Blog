@@ -145,7 +145,7 @@ def admin():
 @login_required
 def dashboard():
     posts = Posts.query.all()
-    return render_template('dashboard.html',params=params,posts = posts)
+    return render_template('admin/dashboard.html',params=params,posts = posts)
 
 @app.route("/about")
 def about():
@@ -164,7 +164,7 @@ def post_route(post_slug):
 @app.route("/edit/<string:sno>", methods = ['GET','POST'])
 def edit(sno):
 
-    if ('user' in session and session['user'] == params['admin_user']):
+    #if ('user' in session and session['user'] == params['admin_user']):
         if request.method == 'POST':
             box_title = request.form.get('title')
             slug = request.form.get('slug')
@@ -193,7 +193,7 @@ def edit(sno):
               sno = sno
         else:
               sno = 0
-        return render_template('edit.html',params=params,post=post,sno=sno)
+        return render_template('admin/editPost.html',params=params,post=post,sno=sno)
 
 @app.route("/contact", methods = ['GET','POST'])
 def contact():
@@ -228,11 +228,11 @@ def uploader():
 
 @app.route("/delete/<string:sno>", methods = ['GET','POST'])
 def delete(sno):
-    if ('user' in session and session['user'] == params['admin_user']):
-        post = Posts.query.filter_by(sno=sno).first()
-        db.session.delete(post)
-        db.session.commit()
-    return redirect('/admin')
+    #if ('user' in session and session['user'] == params['admin_user']):
+    post = Posts.query.filter_by(sno=sno).first()
+    db.session.delete(post)
+    db.session.commit()
+    return redirect('/dashboard')
 
 @app.route("/register", methods=['GET','POST'])
 def register():

@@ -1,0 +1,113 @@
+{% extends "admin/base.html" %}
+  {% block body %}
+                    <div class="flex flex-1  flex-col md:flex-row lg:flex-row mx-2">
+                        <div class="mb-2 border-solid border-gray-300 rounded border shadow-sm w-full">
+                            <div class="bg-gray-200 px-2 py-3 border-solid border-gray-200 border-b">
+                                All Posts
+                            </div>
+                            <div class="p-3">
+                                
+                                <a href="/edit/0"><button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4">Add Post</button></a>
+                                
+                                <br><br>
+                                <table class="table-responsive w-full rounded">
+                                    <thead>
+                                      <tr>
+                                        <th class="border w-1/8 px-4 py-2">Id</th>
+                                        <th class="border w-1/6 px-4 py-2">Title</th>
+                                        <th class="border w-1/6 px-4 py-2">Content</th>
+                                        <th class="border w-1/6 px-4 py-2">Image</th>
+                                        <th class="border w-1/7 px-4 py-2">Date</th>
+                                        <th class="border w-1/5 px-4 py-2">Actions</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for post in posts %}
+                                        <tr>
+                                            <td class="border px-4 py-2">{{post.sno}}</td>
+                                            <td class="border px-4 py-2">{{post.title}}</td>
+                                            <td class="border px-4 py-2">{{post.content}}</td>
+                                            <td class="border px-4 py-2">{{post.image}}</td>
+                                            <td class="border px-4 py-2">{{post.date}}</td>
+                                            
+                                            <td class="border px-4 py-2">
+                                                
+                                                <a data-modal='centeredFormModal' class="modal-trigger bg-teal-300 cursor-pointer rounded p-1 mx-1 text-white">
+                                                        <i class="fas fa-eye"></i></a>
+                                                <a class="bg-teal-300 cursor-pointer rounded p-1 mx-1 text-white" href="/edit/{{post.sno}}">
+                                                        <i class="fas fa-edit"></i></a>
+                                                <a class="bg-teal-300 cursor-pointer rounded p-1 mx-1 text-red-500" href="/delete/{{post.sno}}">
+                                                        <i class="fas fa-trash"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div id='centeredFormModal' class="modal-wrapper">
+                        <div class="overlay close-modal"></div>
+                        <div class="modal modal-centered">
+                            <div class="modal-content shadow-lg p-5">
+                                <div class="border-b p-2 pb-3 pt-0 mb-4">
+                                   <div class="flex justify-between items-center">
+                                        Post Detail
+                                        <span class='close-modal cursor-pointer px-3 py-1 rounded-full bg-gray-100 hover:bg-gray-200'>
+                                            <i class="fas fa-times text-gray-700"></i>
+                                        </span>
+                                   </div>
+                                </div>
+                                <!-- Modal content -->
+                                <form id='form_id' class="w-full">
+                                    <div class="flex flex-wrap -mx-3 mb-6">
+                                        <div class="w-full px-3">
+                                            <label class="block uppercase tracking-wide text-gray-700 text-xs font-light mb-1" for="grid-first-name">
+                                                Title
+                                            </label>
+                                            <input
+                                                class="appearance-none block w-full bg-gray-200 text-gray-700 border border-red-500 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white-500"
+                                                id="grid-first-name" type="text" name="title" value="" placeholder="Title">
+                                            <!-- <p class="text-red-500 text-xs italic">Please fill out this field.</p> -->
+                                        </div>
+                                    </div>
+                                    <div class="flex flex-wrap -mx-3 mb-6">
+                                        <div class="w-full px-3">
+                                            <label class="block uppercase tracking-wide text-grey-darker text-xs font-light mb-1" for="grid-password">
+                                                Content
+                                            </label>
+                                            <input
+                                                class="appearance-none block w-full bg-grey-200 text-grey-darker border border-grey-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-grey"
+                                                id="grid-password" type="password" placeholder="content">
+                                            <!-- <p class="text-grey-dark text-xs italic">Make it as long and as crazy as
+                                                you'd like</p> -->
+                                        </div>
+                                    </div>
+                                    <div class="flex flex-wrap -mx-3 mb-6">
+                                        <div class="w-full px-3">
+                                            <label class="block uppercase tracking-wide text-grey-darker text-xs font-light mb-1" for="grid-password">
+                                                Image
+                                            </label>
+                                            <input
+                                                class="appearance-none block w-full bg-grey-200 text-grey-darker border border-grey-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-grey"
+                                                id="grid-password" type="text" placeholder="Image">
+                                            <!-- <p class="text-grey-dark text-xs italic">Make it as long and as crazy as
+                                                you'd like</p> -->
+                                        </div>
+                                    </div>
+                                    
+                    
+                                    <!-- <div class="mt-5">
+                                        <button class='bg-green-500 hover:bg-green-800 text-white font-bold py-2 px-4 rounded'> Submit </button>
+                                        <span class='close-modal cursor-pointer bg-red-200 hover:bg-red-500 text-red-900 font-bold py-2 px-4 rounded'>
+                                            Close
+                                        </span>
+                                    </div> -->
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    
+ {% endblock  %}
+
