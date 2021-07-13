@@ -25,7 +25,7 @@ app = Flask(__name__)
 app.secret_key = params['secret_key']
 app.config['UPLOAD_FOLDER'] = params['upload_location']
 #app.config['PROFILE_FOLDER'] = params['profile_location']
-app.config['PROFILE_FOLDER'] = join(dirname(realpath(__file__)), 'static\\assets\\profile')
+UPLOADS_PATH  = join(dirname(realpath(__file__)), 'static\\assets\\profile')
 app.config.update(
     MAIL_SERVER ='smtp.gmail.com',
     MAIL_PORT = '465',
@@ -249,7 +249,7 @@ def register():
          encrypted_password = bcrypt.generate_password_hash(password).decode('utf-8')
          f = request.files['profile_pic']
          #f = request.form.file.data
-         f.save(os.path.join(app.config['PROFILE_FOLDER'], secure_filename(f.filename)))
+         f.save(os.path.join(UPLOADS_PATH, secure_filename(f.filename)))
          entery = Users(f_name=f_name,l_name=last_name,email=email,password=encrypted_password,date=date,profile_img=f.filename)
          db.session.add(entery)
          db.session.commit()
