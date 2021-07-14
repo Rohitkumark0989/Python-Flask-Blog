@@ -2,9 +2,14 @@ from flask import Flask,render_template,request,session,redirect,flash,url_for
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 
 from flask_sqlalchemy import SQLAlchemy
-from flask_bcrypt import Bcrypt
-from flask_mail import Mail
-from flask_migrate import Migrate
+#from flask_bcrypt import Bcrypt
+from extension import (
+    bcrypt,
+    mail,
+    migrate
+)
+
+#from flask_migrate import Migrate
 #from werkzeug import secure_filename
 from werkzeug.utils import secure_filename
 #from werkzeug.datastructures import  FileStorage
@@ -33,7 +38,7 @@ app.config.update(
     MAIL_USERNAME = params['gmail-user'],
     MAIL_PASSWORD = params['gmail-password']
 )
-mail =  Mail(app)
+#mail =  Mail(app)
 
 if os.getenv('FLASK_ENV') =='development':
     app.config['SQLALCHEMY_DATABASE_URI'] = params['local_uri']
@@ -46,8 +51,8 @@ db = SQLAlchemy(app)
 login_manager =LoginManager()
 login_manager.init_app(app)
 
-bcrypt = Bcrypt(app)
-migrate = Migrate(app, db)
+#bcrypt = Bcrypt(app)
+#migrate = migrate(app, db)
 class Contacts(db.Model):
     """
     id,name,email,phone_num,msg,date
