@@ -134,6 +134,7 @@ def admin():
             login_user(user)
             #if (username == params['admin_user'] and password == params['admin_password']):
             session['user'] = username
+            session['user_id'] = user.id
             APP_PATH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
             TEMPLATE_PATH = os.path.join(APP_PATH, 'templates/')
             return redirect('/dashboard')
@@ -258,6 +259,12 @@ def register():
          return redirect('/admin')
 
     return render_template('admin/register.html')
+@app.route('/myAccount')
+def myAccount():
+    """ My account detail """
+    
+    user = Users.query.filter_by(id = session['user_id']).first() 
+    return render_template('admin/myAccount.html',user=user)
 
 @app.route("/logout")
 @login_required

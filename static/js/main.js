@@ -10,7 +10,7 @@ function sidebarToggle() {
 
 var profileDropdown = document.getElementById('ProfileDropDown');
 
-function profileToggle() {
+function profileToggle() { 
     if (profileDropdown.style.display === "none") {
         profileDropdown.style.display = "block";
     } else {
