@@ -1,0 +1,193 @@
+{% extends "admin/base.html" %}
+  {% block body %}
+                    <div class="flex flex-1  flex-col md:flex-row lg:flex-row mx-2">
+                        <div class="mb-2 border-solid border-gray-300 rounded border shadow-sm w-full">
+                            <div class="bg-gray-200 px-2 py-3 border-solid border-gray-200 border-b">
+                                All Users List
+                            </div>
+                            <div class="p-3">
+                               
+                                <br><br>
+                                <input type="hidden" id="all-data" attr="{{jsonop}}" value="{{jsonop}}">
+                                <table class="table-responsive w-full rounded">
+                                    <thead>
+                                      <tr>
+                                        <th class="border w-1/8 px-4 py-2">Id</th>
+                                        <th class="border w-1/6 px-4 py-2">F Name</th>
+                                        <th class="border w-1/6 px-4 py-2">L Name</th>
+                                        <th class="border w-1/6 px-4 py-2">Email</th>
+                                        <th class="border w-1/7 px-4 py-2">Picture</th>
+                                        <th class="border w-1/5 px-4 py-2">Is Admin</th>
+                                        <th class="border w-1/5 px-4 py-2">Is Approve</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for user in users %}
+                                        <tr>
+                                            <td class="border px-4 py-2">{{user.id}}</td>
+                                            <td class="border px-4 py-2">{{user.f_name}}</td>
+                                            <td class="border px-4 py-2">{{user.l_name}}</td>
+                                            <td class="border px-4 py-2">{{user.email}}</td>
+                                            <td class="border px-4 py-2">{{user.profile_img}}</td>
+                                            <td class="border px-4 py-2">
+                                                <label class="switch "  id="switch-{{user.id}}">
+                                                    <input type="checkbox" class="isAdmin" attr="{{user.id}}" id="togBtn">
+                                                    <div class="slider round" id="slider-{{user.id}}">
+                                                        <!--ADDED HTML -->
+                                                        <span class="on">YES</span>
+                                                        <span class="off">NO</span>
+                                                        <!--END-->
+                                                    </div>
+                                                </label>
+                                            </td>
+                                            <td class="border px-4 py-2">
+                                                <label class="switch "  >
+                                                    <input type="checkbox" class="isApprove" attr="{{user.id}}" >
+                                                    <div class="slider round" id="approve-{{user.id}}">
+                                                        <!--ADDED HTML -->
+                                                        <span class="on">YES</span>
+                                                        <span class="off">NO</span>
+                                                        <!--END-->
+                                                    </div>
+                                                </label>
+                                            </td>
+                                            
+                                            
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <script type=text/javascript>
+                        $(function() {
+                            $('.isAdmin').click(function(){
+                                var id = $(this).attr('attr');
+                                var is_admin = 'No';
+                                if($('#slider-'+$(this).attr('attr')).css("background-color") == 'rgb(202, 34, 34)'){
+                                    is_admin = 'Yes';
+                                }
+                                
+                                $.ajax({
+                                    url: '/updateStatus',
+                                    data: {
+                                        id: id,
+                                        is_admin:is_admin
+                                    },
+                                    type:'POST',
+                                    success: function(response){
+                                        var res = JSON.parse(response);
+                                        
+                                        if(res.admin == "No"){
+                                            Command: toastr["error"]("Admin Deactivated!")
+                                        }
+                                        else{
+                                            Command: toastr["success"]("Admin Activated!")
+                                        }
+                                        toaster();    
+                                        
+			                        },
+                                    error: function(error){
+                                        console.log(error);
+                                    }
+                                });
+                            })
+                            $('.isApprove').click(function(){ 
+                                var id = $(this).attr('attr');
+                                var is_approve = 'No';
+                                if($('#approve-'+$(this).attr('attr')).css("background-color") == 'rgb(202, 34, 34)'){
+                                    is_approve = 'Yes';
+                                }
+                                
+                                $.ajax({
+                                    url: '/updateApproveStatus',
+                                    data: {
+                                        id: id,
+                                        is_approve:is_approve
+                                    },
+                                    type:'POST',
+                                    success: function(response){
+                                        var res = JSON.parse(response);
+                                        if(res.approve == "No"){
+                                            Command: toastr["error"]("Admin Disapproved!")
+                                        }
+                                        else{
+                                            Command: toastr["success"]("Admin Approved!")
+                                        }
+                                        toaster();    
+                                        
+			                        },
+                                    error: function(error){
+                                        console.log(error);
+                                    }
+                                });
+                            })
+
+                            function toaster() {
+                                return toastr.options = {
+                                        "closeButton": true,
+                                        "debug": false,
+                                        "newestOnTop": false,
+                                        "progressBar": false,
+                                        "positionClass": "toast-top-right",
+                                        "preventDuplicates": false,
+                                        "onclick": null,
+                                        "showDuration": "100",
+                                        "hideDuration": "1000",
+                                        "timeOut": "2000",
+                                        "extendedTimeOut": "1000",
+                                        
+                                        }
+                            }
+                            setTimeout(() => {
+                               var all_data = $('#all-data').val();
+                               var result = letterUsage(all_data);
+                               console.log(result);
+                               // for (var i = 0; i < obj.length; i++){
+                                   // console.log(obj[i])
+                                //}
+
+                                //console.log(rv);
+                                //return rv;
+                                
+                                // for(i in all_data){
+                                //     //for(n in all_data[i]){
+                                //         console.log(all_data[i])
+                                //     //}
+                                // }
+
+                                // for (let i = 0; i < all_data.length; i++) { 
+                                //       console.log(all_data);
+                                // }
+                                // for(var item in all_data){
+                                //     console.log(item);
+                                // }
+                            }, 1000);
+                        })
+
+                        function letterUsage(data) {
+                                // Collector.
+                                var result = {};
+                                
+                                // Loop.
+                                for (var i = 0; i < data.length; ++i) {
+                                    for (var j = 0; j < data[i].length; ++j) {
+                                        var letter = data[i][j];
+                                        if (result[letter]) {
+                                            result[letter] = result[letter] + 1;
+                                        } else {
+                                            result[letter] = 1;
+                                        }
+                                    }
+                                }
+
+                                return result;
+                            }
+
+                        
+                    </script>
+                    
+ {% endblock  %}
+

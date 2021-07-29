@@ -1,15 +1,17 @@
-from flask import Flask,render_template,request,session,redirect,flash,url_for
+from flask import Flask,render_template,request,session,redirect,flash,url_for,jsonify,json
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import text
+from flask_marshmallow  import Marshmallow
 #from flask_bcrypt import Bcrypt
 from extension import (
     bcrypt,
     mail,
-    migrate
+    
 )
 
-#from flask_migrate import Migrate
+from flask_migrate import Migrate
 #from werkzeug import secure_filename
 from werkzeug.utils import secure_filename
 #from werkzeug.datastructures import  FileStorage
@@ -17,9 +19,11 @@ from werkzeug.utils import secure_filename
 from dotenv import load_dotenv
 load_dotenv()
 import json
+import numpy as np
 import os
 from os.path import join, dirname, realpath
 import math
+import psycopg2
 from datetime import datetime,date
 
 with open('config.json','r') as c:
@@ -47,12 +51,12 @@ else:
 
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(app)
-
+ma = Marshmallow(app)
 login_manager =LoginManager()
 login_manager.init_app(app)
 
 #bcrypt = Bcrypt(app)
-#migrate = migrate(app, db)
+migrate = Migrate(app, db)
 class Contacts(db.Model):
     """
     id,name,email,phone_num,msg,date
@@ -85,9 +89,37 @@ class Users(UserMixin, db.Model):
     l_name = db.Column(db.String(80), nullable=False)
     email = db.Column(db.String(120),  nullable=False)
     password = db.Column(db.String(120),  nullable=False)
+    is_admin = db.Column(db.String(120),  nullable=True,default=0)
+    is_approved = db.Column(db.String(120),  nullable=True,default=0)
     date = db.Column(db.String(120),  nullable=True)
     profile_img = db.Column(db.String(120),  nullable=True,default='default.jpg')
-    
+    def __init__(self):
+        self.__my_attr = 'No'
+    def set_my_attr(self, val):
+        self.__my_attr = val
+    def get_make(self):
+        return  self.__my_attr        
+
+class UsersSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = Users
+        load_instance=True 
+
+# class RewardSchema(ma.SQLAlchemyAutoSchema):
+#     class Meta:
+#         model = Reward
+        
+# def db(database_name=params['local_uri']):
+#     return psycopg2.connect(database='flaskproject', user='postgres', password='admin')
+
+# def query_db(query, args=(), one=False):
+#     cur = db().cursor()
+#     cur.execute(query, args)
+#     r = [dict((cur.description[i][0], value) \
+#                for i, value in enumerate(row)) for row in cur.fetchall()]
+#     cur.connection.close()
+#     return (r[0] if r else None) if one else r
+
 @login_manager.user_loader
 def load_user(id):
     return Users.query.get(int(id))
@@ -270,6 +302,55 @@ def myAccount():
     
     user = Users.query.filter_by(id = session['user_id']).first() 
     return render_template('admin/myAccount.html',user=user)
+@app.route('/admin/users')
+@login_required
+def users():
+    """User list manuplate"""
+    users = Users.query.order_by(Users.id.asc()).all()
+    user_schema = UsersSchema()
+    #output = user_schema.dump(users).data
+    #test = jsonify({'test':output})
+    #data = np.array(users)
+    #data = json.dumps(users)
+    
+    #my_query = query_db("select f_name,l_name,email,profile_img,is_admin,is_approved from users  order by id ")
+    #json_output = (my_query)
+    sql = text('select f_name,l_name,email,profile_img,is_admin,is_approved from users  order by id')
+    result = db.engine.execute(sql)
+    names = [list(row) for row in result]
+    json_output =(names)
+    return render_template('admin/users.html',users=users,jsonop=json_output)
+
+    #user = Users.query.filter_by(id = session['user_id']).first() 
+    #return render_template('admin/myAccount.html',user=user)
+@app.route('/updateStatus', methods=['POST'])
+def updateStatus():
+    """ Update is admin status """
+    req = request.get_json()
+    id = request.form['id']
+    is_admin = request.form['is_admin']
+    user = Users.query.filter_by(id=id).first()
+    user.is_admin = is_admin
+    #post.date = date
+    #db.session.add(user)
+    db.session.commit()
+
+    return json.dumps({'status':'OK','id':id,'admin':is_admin})
+
+@app.route('/updateApproveStatus', methods=['POST'])
+def updateApproveStatus():
+    """ Update is approve status for the user"""
+    req = request.get_json()
+    id = request.form['id']
+    is_approve = request.form['is_approve']
+    user = Users.query.filter_by(id=id).first()
+    user.is_approved = is_approve
+    #post.date = date
+    db.session.add(user)
+    db.session.commit()
+
+    return json.dumps({'status':'OK','id':id,'approve':is_approve})
+
 
 @app.route("/logout")
 @login_required
